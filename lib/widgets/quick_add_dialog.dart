@@ -7,14 +7,56 @@ import '../providers/preferences_provider.dart';
 import '../providers/task_provider.dart';
 import '../utils/date_helpers.dart';
 
+/// Custom spring-elastic curve simulating a rapid rubber balloon inflation:
+/// starts fast, overshoots volume by ~9%, then gently snaps back into place.
+class _BalloonPopCurve extends Curve {
+  const _BalloonPopCurve();
+
+  @override
+  double transformInternal(double t) {
+    const s = 1.70158 * 1.45;
+    final t1 = t - 1.0;
+    return t1 * t1 * ((s + 1.0) * t1 + s) + 1.0;
+  }
+}
+
 class QuickAddDialog extends StatefulWidget {
   const QuickAddDialog({super.key});
 
   static Future<void> show(BuildContext context) {
-    return showDialog(
+    return showGeneralDialog(
       context: context,
       barrierDismissible: true,
-      builder: (ctx) => const QuickAddDialog(),
+      barrierLabel: 'Quick Add Task',
+      barrierColor: Colors.black.withValues(alpha: 0.5),
+      transitionDuration: const Duration(milliseconds: 320),
+      reverseTransitionDuration: const Duration(milliseconds: 190),
+      pageBuilder: (ctx, animation, secondaryAnimation) {
+        return const QuickAddDialog();
+      },
+      transitionBuilder: (ctx, animation, secondaryAnimation, child) {
+        final curve = CurvedAnimation(
+          parent: animation,
+          curve: const _BalloonPopCurve(),
+          reverseCurve: Curves.easeInBack,
+        );
+
+        final fadeCurve = CurvedAnimation(
+          parent: animation,
+          curve: const Interval(0.0, 0.45, curve: Curves.easeOut),
+          reverseCurve: const Interval(0.4, 1.0, curve: Curves.easeIn),
+        );
+
+        return FadeTransition(
+          opacity: fadeCurve,
+          child: ScaleTransition(
+            // Originates directly at the center '+' button in the bottom navigation bar
+            alignment: const Alignment(0.0, 0.92),
+            scale: Tween<double>(begin: 0.05, end: 1.0).animate(curve),
+            child: child,
+          ),
+        );
+      },
     );
   }
 
@@ -148,6 +190,13 @@ class _QuickAddDialogState extends State<QuickAddDialog> {
         : '';
 
     return AlertDialog(
+      backgroundColor: isDark ? const Color(0xFF141F18) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isDark ? const Color(0xFF263B2F) : const Color(0xFFDDE6E0),
+        ),
+      ),
       title: Text(
         'Quick Add Task',
         style: TextStyle(
