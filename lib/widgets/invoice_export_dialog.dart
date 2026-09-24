@@ -78,6 +78,14 @@ class _InvoiceExportDialogState extends State<InvoiceExportDialog> {
     final dateFmt = DateFormat('MMM d, yyyy');
 
     return AlertDialog(
+      actionsOverflowButtonSpacing: 8,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: isDark ? const Color(0xFF263B2F) : const Color(0xFFDDE6E0),
+        ),
+      ),
+      backgroundColor: isDark ? const Color(0xFF141F18) : Colors.white,
       title: Row(
         children: [
           Icon(
@@ -86,60 +94,65 @@ class _InvoiceExportDialogState extends State<InvoiceExportDialog> {
             size: 22,
           ),
           const SizedBox(width: 10),
-          Text(
-            'Export Invoice',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: isDark ? const Color(0xFFEDF5F0) : const Color(0xFF0F1914),
+          Expanded(
+            child: Text(
+              'Export Invoice',
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: isDark ? const Color(0xFFEDF5F0) : const Color(0xFF0F1914),
+              ),
             ),
           ),
         ],
       ),
-      content: SizedBox(
-        width: 420,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Select a date range. All completed tasks within the range will be included, grouped by currency.',
-              style: TextStyle(
-                fontSize: 13,
-                color: isDark
-                    ? const Color(0xFF8EA397)
-                    : const Color(0xFF5A6E64),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: _DatePickerTile(
-                    label: 'From',
-                    date: dateFmt.format(_from),
-                    onTap: _exporting ? null : _pickFrom,
-                    isDark: isDark,
-                  ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Select a date range. All completed tasks within the range will be included, grouped by currency.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: isDark
+                      ? const Color(0xFF8EA397)
+                      : const Color(0xFF5A6E64),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _DatePickerTile(
-                    label: 'To',
-                    date: dateFmt.format(_to),
-                    onTap: _exporting ? null : _pickTo,
-                    isDark: isDark,
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: _DatePickerTile(
+                      label: 'From',
+                      date: dateFmt.format(_from),
+                      onTap: _exporting ? null : _pickFrom,
+                      isDark: isDark,
+                    ),
                   ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _DatePickerTile(
+                      label: 'To',
+                      date: dateFmt.format(_to),
+                      onTap: _exporting ? null : _pickTo,
+                      isDark: isDark,
+                    ),
+                  ),
+                ],
+              ),
+              if (_error != null) ...[
+                const SizedBox(height: 12),
+                Text(
+                  _error!,
+                  style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12),
                 ),
               ],
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                _error!,
-                style: const TextStyle(color: Color(0xFFDC2626), fontSize: 12),
-              ),
             ],
-          ],
+          ),
         ),
       ),
       actions: [
@@ -192,7 +205,7 @@ class _DatePickerTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1C2C23) : const Color(0xFFF0F5F2),
           borderRadius: BorderRadius.circular(12),
@@ -218,20 +231,24 @@ class _DatePickerTile extends StatelessWidget {
               children: [
                 Icon(
                   Icons.calendar_today_outlined,
-                  size: 14,
+                  size: 13,
                   color: isDark
                       ? const Color(0xFFC88A32)
                       : const Color(0xFFB4782A),
                 ),
-                const SizedBox(width: 6),
-                Text(
-                  date,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: isDark
-                        ? const Color(0xFFEDF5F0)
-                        : const Color(0xFF0F1914),
+                const SizedBox(width: 5),
+                Expanded(
+                  child: Text(
+                    date,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? const Color(0xFFEDF5F0)
+                          : const Color(0xFF0F1914),
+                    ),
                   ),
                 ),
               ],
