@@ -44,6 +44,20 @@ class TaskProvider extends ChangeNotifier {
     }).toList();
   }
 
+  List<TaskItem> get inProgressTasks =>
+      _tasks.where((t) => t.status == 'in_progress').toList();
+
+  List<CurrencySplit> get pipelineSplit {
+    final map = <String, double>{};
+    for (final task in inProgressTasks) {
+      final curr = task.clientCurrency.isNotEmpty ? task.clientCurrency : 'PHP';
+      map[curr] = (map[curr] ?? 0.0) + task.clientRate;
+    }
+    return map.entries
+        .map((e) => CurrencySplit(currency: e.key, total: e.value))
+        .toList();
+  }
+
   TaskProvider() {
     loadAll();
   }

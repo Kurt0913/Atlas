@@ -68,7 +68,7 @@ class _ClientCardState extends State<ClientCard> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.2 : 0.02),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -220,9 +220,9 @@ class _ClientCardState extends State<ClientCard> {
   VoidCallback? get onTap => widget.onTap;
 }
 
-/// A small pill showing the client's current local time with a color-coded
-/// dot indicating whether it's a reasonable hour to contact them.
-class _LocalTimePill extends StatelessWidget {
+/// A live pill showing the client's local time with a breathing pulse dot
+/// when they are in active working hours, and a gentle crescent moon when asleep.
+class _LocalTimePill extends StatefulWidget {
   final String time;
   final String tzLabel;
   final bool isAwake;
@@ -236,11 +236,41 @@ class _LocalTimePill extends StatelessWidget {
   });
 
   @override
+  State<_LocalTimePill> createState() => _LocalTimePillState();
+}
+
+class _LocalTimePillState extends State<_LocalTimePill>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _pulseAnimation = CurvedAnimation(
+      parent: _pulseController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final awakeColor =
-        isAwake ? const Color(0xFF059669) : const Color(0xFFDC2626);
+    final isDark = widget.isDark;
+    final isAwake = widget.isAwake;
+    const awakeColor = Color(0xFF10B981);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1C2C23) : const Color(0xFFF0F5F2),
         borderRadius: BorderRadius.circular(20),
@@ -251,23 +281,72 @@ class _LocalTimePill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(
-              color: awakeColor,
-              shape: BoxShape.circle,
+          if (isAwake)
+            AnimatedBuilder(
+              animation: _pulseAnimation,
+              builder: (context, child) {
+                return Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 6 + (5 * _pulseAnimation.value),
+                      height: 6 + (5 * _pulseAnimation.value),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: awakeColor.withValues(
+                          alpha: 0.35 * (1.0 - _pulseAnimation.value),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: awakeColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: awakeColor.withValues(alpha: 0.4),
+                            blurRadius: 3,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            )
+          else
+            const Text(
+              '☾',
+              style: TextStyle(
+                fontSize: 10,
+                color: Color(0xFF94A3B8),
+                height: 1.0,
+              ),
             ),
-          ),
-          const SizedBox(width: 5),
+          const SizedBox(width: 6),
           Text(
-            time,
+            widget.time,
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: isDark ? const Color(0xFFEDF5F0) : const Color(0xFF0F1914),
             ),
           ),
+          if (!isAwake) ...[
+            const SizedBox(width: 4),
+            Text(
+              'asleep',
+              style: TextStyle(
+                fontSize: 10,
+                fontStyle: FontStyle.italic,
+                color: isDark
+                    ? const Color(0xFF8EA397)
+                    : const Color(0xFF64748B),
+              ),
+            ),
+          ],
         ],
       ),
     );

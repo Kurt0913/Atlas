@@ -3,7 +3,7 @@ import '../models/task_item.dart';
 import '../theme/app_theme.dart';
 import 'deadline_badge.dart';
 
-class TaskCard extends StatelessWidget {
+class TaskCard extends StatefulWidget {
   final TaskItem task;
   final TaskDeadlineVariant? deadlineVariant;
   final ValueChanged<String>? onStatusChange;
@@ -19,6 +19,13 @@ class TaskCard extends StatelessWidget {
     this.onDelete,
   });
 
+  @override
+  State<TaskCard> createState() => _TaskCardState();
+}
+
+class _TaskCardState extends State<TaskCard> {
+  bool _isHovered = false;
+
   Color _statusAccentColor(String status) {
     switch (status) {
       case 'done':
@@ -33,8 +40,9 @@ class TaskCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final task = widget.task;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final variant = deadlineVariant ?? task.deadlineVariant;
+    final variant = widget.deadlineVariant ?? task.deadlineVariant;
     final statusColor = _statusAccentColor(task.status);
 
     return Padding(
@@ -66,13 +74,13 @@ class TaskCard extends StatelessWidget {
               ),
             );
             if (confirm == true) {
-              onDelete?.call();
+              widget.onDelete?.call();
               return true;
             }
             return false;
           } else if (direction == DismissDirection.startToEnd) {
             // Edit trigger
-            onEdit?.call();
+            widget.onEdit?.call();
             return false;
           }
           return false;
@@ -103,70 +111,84 @@ class TaskCard extends StatelessWidget {
             size: 24,
           ),
         ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF141F18) : Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-              color: isDark ? const Color(0xFF263B2F) : const Color(0xFFDDE6E0),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.02),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            transform: Matrix4.translationValues(0, _isHovered ? -1.5 : 0, 0),
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF141F18) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(
+                color: _isHovered
+                    ? (isDark
+                        ? const Color(0xFF385242)
+                        : const Color(0xFFCBD5CF))
+                    : (isDark
+                        ? const Color(0xFF263B2F)
+                        : const Color(0xFFDDE6E0)),
               ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Left status accent vertical bar
-                  Container(
-                    width: 4,
-                    color: statusColor,
-                  ),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  task.title,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: isDark
-                                        ? const Color(0xFFEDF5F0)
-                                        : const Color(0xFF0F1914),
-                                  ),
-                                ),
-                              ),
-                              if (onEdit != null)
-                                InkWell(
-                                  onTap: onEdit,
-                                  borderRadius: BorderRadius.circular(20),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(4),
-                                    child: Icon(
-                                      Icons.edit_note_outlined,
-                                      size: 20,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(
+                      alpha: isDark
+                          ? (_isHovered ? 0.35 : 0.2)
+                          : (_isHovered ? 0.06 : 0.02)),
+                  blurRadius: _isHovered ? 10 : 6,
+                  offset: Offset(0, _isHovered ? 4 : 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Left status accent vertical bar
+                    Container(
+                      width: 4,
+                      color: statusColor,
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    task.title,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
                                       color: isDark
-                                          ? const Color(0xFF8EA397)
-                                          : const Color(0xFF5A6E64),
+                                          ? const Color(0xFFEDF5F0)
+                                          : const Color(0xFF0F1914),
                                     ),
                                   ),
                                 ),
-                            ],
-                          ),
+                                if (widget.onEdit != null)
+                                  InkWell(
+                                    onTap: widget.onEdit,
+                                    borderRadius: BorderRadius.circular(20),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Icon(
+                                        Icons.edit_note_outlined,
+                                        size: 20,
+                                        color: isDark
+                                            ? const Color(0xFF8EA397)
+                                            : const Color(0xFF5A6E64),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
                           const SizedBox(height: 8),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -196,8 +218,9 @@ class TaskCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildStatusSegments(BuildContext context, bool isDark) {
     return Container(
@@ -212,21 +235,21 @@ class TaskCard extends StatelessWidget {
             context,
             statusKey: 'todo',
             label: 'To Do',
-            isSelected: task.status == 'todo',
+            isSelected: widget.task.status == 'todo',
             isDark: isDark,
           ),
           _statusButton(
             context,
             statusKey: 'in_progress',
             label: 'In Progress',
-            isSelected: task.status == 'in_progress',
+            isSelected: widget.task.status == 'in_progress',
             isDark: isDark,
           ),
           _statusButton(
             context,
             statusKey: 'done',
             label: 'Done',
-            isSelected: task.status == 'done',
+            isSelected: widget.task.status == 'done',
             isDark: isDark,
           ),
         ],
@@ -260,7 +283,7 @@ class TaskCard extends StatelessWidget {
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => onStatusChange?.call(statusKey),
+        onTap: () => widget.onStatusChange?.call(statusKey),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
           padding: const EdgeInsets.symmetric(vertical: 7),

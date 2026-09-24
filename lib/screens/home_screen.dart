@@ -319,6 +319,49 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+
+          // ── Pipeline Velocity (Money in Progress) ───────────────────
+          if (taskProvider.pipelineSplit.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF221A08)
+                    : const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: isDark
+                      ? const Color(0xFF78350F)
+                      : const Color(0xFFFDE68A),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFD97706),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Pipeline: ${taskProvider.pipelineSplit.map((p) => '${_symbolFor(p.currency)}${formatter.format(p.total)}').join(', ')} in progress',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: isDark
+                          ? const Color(0xFFFCD34D)
+                          : const Color(0xFF92400E),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -441,16 +484,24 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         const SizedBox(width: 4),
-        Text(
-          formatter.format(amount),
-          style: TextStyle(
-            fontFamily: 'serif',
-            fontSize: 48,
-            fontWeight: FontWeight.w700,
-            letterSpacing: -1,
-            color: isDark ? const Color(0xFFEDF5F0) : Colors.white,
-            height: 1.1,
-          ),
+        TweenAnimationBuilder<double>(
+          key: ValueKey('currency_${currency}_$amount'),
+          tween: Tween<double>(begin: 0.0, end: amount),
+          duration: const Duration(milliseconds: 650),
+          curve: Curves.easeOutCubic,
+          builder: (context, animatedValue, child) {
+            return Text(
+              formatter.format(animatedValue),
+              style: TextStyle(
+                fontFamily: 'serif',
+                fontSize: 48,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -1,
+                color: isDark ? const Color(0xFFEDF5F0) : Colors.white,
+                height: 1.1,
+              ),
+            );
+          },
         ),
       ],
     );
@@ -527,15 +578,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             const SizedBox(width: 10),
-            Text(
-              'No upcoming deadlines — your slate is clean.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: isDark
-                    ? const Color(0xFF8EA397)
-                    : const Color(0xFF5A6E64),
+            Flexible(
+              child: Text(
+                'No upcoming deadlines — your slate is clean.',
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: isDark
+                      ? const Color(0xFF8EA397)
+                      : const Color(0xFF5A6E64),
+                ),
               ),
             ),
           ],

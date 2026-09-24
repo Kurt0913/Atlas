@@ -207,11 +207,14 @@ class _ClientFormDialogState extends State<ClientFormDialog> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         value: _platform,
                         decoration: const InputDecoration(labelText: 'Platform'),
                         items: platformPresets
-                            .map((p) =>
-                                DropdownMenuItem(value: p, child: Text(p)))
+                            .map((p) => DropdownMenuItem(
+                                  value: p,
+                                  child: Text(p, overflow: TextOverflow.ellipsis),
+                                ))
                             .toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _platform = val);
@@ -221,6 +224,7 @@ class _ClientFormDialogState extends State<ClientFormDialog> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         value: _timezone,
                         decoration: const InputDecoration(labelText: 'Timezone'),
                         items: timezonePresets
@@ -244,12 +248,15 @@ class _ClientFormDialogState extends State<ClientFormDialog> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         value: _rateType,
                         decoration:
                             const InputDecoration(labelText: 'Rate Type'),
                         items: rateTypePresets
-                            .map((r) =>
-                                DropdownMenuItem(value: r, child: Text(r)))
+                            .map((r) => DropdownMenuItem(
+                                  value: r,
+                                  child: Text(r, overflow: TextOverflow.ellipsis),
+                                ))
                             .toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _rateType = val);
@@ -259,12 +266,15 @@ class _ClientFormDialogState extends State<ClientFormDialog> {
                     const SizedBox(width: 8),
                     Expanded(
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         value: _currency,
                         decoration:
                             const InputDecoration(labelText: 'Currency'),
                         items: currencyPresets
-                            .map((c) =>
-                                DropdownMenuItem(value: c, child: Text(c)))
+                            .map((c) => DropdownMenuItem(
+                                  value: c,
+                                  child: Text(c, overflow: TextOverflow.ellipsis),
+                                ))
                             .toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _currency = val);
@@ -298,12 +308,15 @@ class _ClientFormDialogState extends State<ClientFormDialog> {
                     Expanded(
                       flex: 2,
                       child: DropdownButtonFormField<String>(
+                        isExpanded: true,
                         value: _contactType,
                         decoration:
                             const InputDecoration(labelText: 'Contact Type'),
                         items: contactTypePresets
-                            .map((c) =>
-                                DropdownMenuItem(value: c, child: Text(c)))
+                            .map((c) => DropdownMenuItem(
+                                  value: c,
+                                  child: Text(c, overflow: TextOverflow.ellipsis),
+                                ))
                             .toList(),
                         onChanged: (val) {
                           if (val != null) setState(() => _contactType = val);

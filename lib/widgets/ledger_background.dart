@@ -33,6 +33,10 @@ class _LedgerDotGridPainter extends CustomPainter {
   final double spacing;
   final double dotRadius;
 
+  static Size? _lastSize;
+  static double? _lastSpacing;
+  static List<Offset> _cachedPoints = const [];
+
   _LedgerDotGridPainter({
     required this.dotColor,
     required this.spacing,
@@ -41,20 +45,24 @@ class _LedgerDotGridPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = dotColor
-      ..strokeWidth = dotRadius * 2
-      ..strokeCap = StrokeCap.round;
-
-    final points = <Offset>[];
-    for (double x = spacing; x < size.width; x += spacing) {
-      for (double y = spacing; y < size.height; y += spacing) {
-        points.add(Offset(x, y));
+    if (_lastSize != size || _lastSpacing != spacing) {
+      _lastSize = size;
+      _lastSpacing = spacing;
+      final pts = <Offset>[];
+      for (double x = spacing; x < size.width; x += spacing) {
+        for (double y = spacing; y < size.height; y += spacing) {
+          pts.add(Offset(x, y));
+        }
       }
+      _cachedPoints = pts;
     }
 
-    if (points.isNotEmpty) {
-      canvas.drawPoints(PointMode.points, points, paint);
+    if (_cachedPoints.isNotEmpty) {
+      final paint = Paint()
+        ..color = dotColor
+        ..strokeWidth = dotRadius * 2
+        ..strokeCap = StrokeCap.round;
+      canvas.drawPoints(PointMode.points, _cachedPoints, paint);
     }
   }
 

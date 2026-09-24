@@ -43,6 +43,7 @@ class AtlasApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: prefs.themeMode,
+      themeAnimationDuration: Duration.zero,
       home: const MainScaffold(),
     );
   }

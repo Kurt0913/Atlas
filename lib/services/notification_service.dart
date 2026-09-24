@@ -88,7 +88,7 @@ class NotificationService {
     final Map<String, String> ids = {};
 
     try {
-      const notificationDetails = NotificationDetails(
+      const _notificationDetails = NotificationDetails(
         android: AndroidNotificationDetails(
           'atlas_deadlines',
           'Task Deadlines',

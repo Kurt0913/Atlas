@@ -155,13 +155,14 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               ),
               const SizedBox(height: 14),
               DropdownButtonFormField<int>(
+                isExpanded: true,
                 value: _selectedClientId,
                 decoration: const InputDecoration(labelText: 'Client'),
                 hint: const Text('Select a client'),
                 items: clients
                     .map((c) => DropdownMenuItem(
                           value: c.id,
-                          child: Text(c.name),
+                          child: Text(c.name, overflow: TextOverflow.ellipsis),
                         ))
                     .toList(),
                 onChanged: clients.isEmpty
