@@ -29,8 +29,7 @@ class QuickAddDialog extends StatefulWidget {
       barrierDismissible: true,
       barrierLabel: 'Quick Add Task',
       barrierColor: Colors.black.withValues(alpha: 0.5),
-      transitionDuration: const Duration(milliseconds: 320),
-      reverseTransitionDuration: const Duration(milliseconds: 190),
+      transitionDuration: const Duration(milliseconds: 300),
       pageBuilder: (ctx, animation, secondaryAnimation) {
         return const QuickAddDialog();
       },
