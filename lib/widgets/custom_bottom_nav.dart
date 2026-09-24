@@ -53,9 +53,31 @@ class CustomBottomNav extends StatelessWidget {
           ),
           // Center Quick Add Button — Single Action Accent: Burnished Brass
           Expanded(
-            child: _QuickAddButton(
-              onTap: onQuickAdd,
-              isDark: isDark,
+            child: Center(
+              child: GestureDetector(
+                onTap: onQuickAdd,
+                child: Container(
+                  height: 46,
+                  width: 46,
+                  decoration: BoxDecoration(
+                    color: isDark ? AppTheme.brassAccentDark : AppTheme.brassAccent,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: (isDark ? AppTheme.brassAccentDark : AppTheme.brassAccent)
+                            .withValues(alpha: 0.35),
+                        blurRadius: 8,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    size: 26,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
             ),
           ),
           _navItem(
@@ -110,95 +132,6 @@ class CustomBottomNav extends StatelessWidget {
                   : (isDark
                       ? const Color(0xFF6B8274)
                       : const Color(0xFF8C9E95)),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickAddButton extends StatefulWidget {
-  final VoidCallback onTap;
-  final bool isDark;
-
-  const _QuickAddButton({required this.onTap, required this.isDark});
-
-  @override
-  State<_QuickAddButton> createState() => _QuickAddButtonState();
-}
-
-class _QuickAddButtonState extends State<_QuickAddButton>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 100),
-      reverseDuration: const Duration(milliseconds: 220),
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.86).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInQuad,
-        reverseCurve: Curves.easeOutBack,
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _handleTapDown(TapDownDetails _) {
-    _controller.forward();
-  }
-
-  void _handleTapUp(TapUpDetails _) {
-    _controller.reverse();
-    widget.onTap();
-  }
-
-  void _handleTapCancel() {
-    _controller.reverse();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final color =
-        widget.isDark ? AppTheme.brassAccentDark : AppTheme.brassAccent;
-
-    return Center(
-      child: GestureDetector(
-        onTapDown: _handleTapDown,
-        onTapUp: _handleTapUp,
-        onTapCancel: _handleTapCancel,
-        child: ScaleTransition(
-          scale: _scaleAnimation,
-          child: Container(
-            height: 46,
-            width: 46,
-            decoration: BoxDecoration(
-              color: color,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.38),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: const Icon(
-              Icons.add,
-              size: 26,
-              color: Colors.white,
             ),
           ),
         ),
