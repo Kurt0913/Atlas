@@ -65,10 +65,11 @@ class _HomeScreenState extends State<HomeScreen> {
             child: GreetingHeader(userName: 'Kurt'),
           ),
 
-          // ── Hero Earnings Card (Edge-to-edge full-bleed, zero-radius) ─
-          _buildFinancialHero(context, taskProvider, isDark, formatter),
-
-          const SizedBox(height: 16),
+          // ── Hero Earnings Card ───────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            child: _buildFinancialHero(context, taskProvider, isDark, formatter),
+          ),
 
           // ── Screen Content with Standard Horizontal Inset ───────────
           Padding(
@@ -156,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Financial Hero — Distinct Full-Width Rectilinear Block
+  // Financial Hero — Luminous Gradient Hero Card with Abstract Shapes & Footer
   // ─────────────────────────────────────────────────────────────────────────
 
   Widget _buildFinancialHero(
@@ -167,86 +168,265 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     final split = taskProvider.earningsSplit;
     final isMonth = taskProvider.timeframe == 'month';
+    final completedCount = taskProvider.earningsTasks.length;
+    final clientCount =
+        taskProvider.earningsTasks.map((t) => t.clientId).toSet().length;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF0F261B) : AppTheme.ledgerGreen,
-        borderRadius: BorderRadius.zero, // Structurally distinct 0 border-radius
-        border: Border(
-          bottom: BorderSide(
-            color: isDark ? const Color(0xFF1E382B) : const Color(0xFF0C2419),
-            width: 1.5,
-          ),
-        ),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: (isDark ? Colors.black : const Color(0xFF062A1E))
+                .withValues(alpha: isDark ? 0.50 : 0.18),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Header Row: Timeframe Switcher + Brass Action Invoice Button ──
-          Row(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: isDark
+                  ? const Color(0xFF263B2F)
+                  : const Color(0xFF1B4E38).withValues(alpha: 0.35),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Segmented pill
-              Container(
-                padding: const EdgeInsets.all(3),
-                decoration: BoxDecoration(
-                  color: isDark
-                      ? const Color(0xFF1B3D2C)
-                      : const Color(0xFF1E4F39),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _timeframeChip('month', 'Month', taskProvider, isDark),
-                    _timeframeChip('week', 'Week', taskProvider, isDark),
-                  ],
-                ),
-              ),
-              const Spacer(),
-              // Action Accent: Burnished Brass Invoice Pill Button
-              InkWell(
-                onTap: () => InvoiceExportDialog.show(context),
-                borderRadius: BorderRadius.circular(16),
+              // ── Upper Hero Section: Gradient with Abstract Shapes ──
+              CustomPaint(
+                painter: _HeroCardAbstractShapesPainter(isDark: isDark),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? AppTheme.brassAccentDark
-                        : AppTheme.brassAccent,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: isDark
+                          ? const [Color(0xFF144633), Color(0xFF08261B)]
+                          : const [Color(0xFF0F5A3E), Color(0xFF073322)],
+                    ),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 22),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Header Row: Timeframe Switcher + Burnished Brass Invoice Pill
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.22),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                _timeframeChip(
+                                    'month', 'Month', taskProvider, isDark),
+                                _timeframeChip(
+                                    'week', 'Week', taskProvider, isDark),
+                              ],
+                            ),
+                          ),
+                          const Spacer(),
+                          // Action Accent: Burnished Brass Invoice Pill Button
+                          InkWell(
+                            onTap: () => InvoiceExportDialog.show(context),
+                            borderRadius: BorderRadius.circular(16),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 7),
+                              decoration: BoxDecoration(
+                                color: isDark
+                                    ? AppTheme.brassAccentDark
+                                    : AppTheme.brassAccent,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.25),
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '📋',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Invoice',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 16),
+
+                      // Frosted Eyebrow Badge (Matching Reference Image)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.16),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.22),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.trending_up_rounded,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isMonth
+                                  ? 'Unclaimed & earned this month'
+                                  : 'Unclaimed & earned this week',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Large Currency Display
+                      if (split.isEmpty) ...[
+                        _buildCurrencyRow('PHP', 0.0, formatter, isDark),
+                        const SizedBox(height: 4),
+                        _buildEmptyEarningsSparkline(isDark, isMonth),
+                      ] else ...[
+                        ...split.map((s) => Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: _buildCurrencyRow(
+                                  s.currency, s.total, formatter, isDark),
+                            )),
+                      ],
+                      const SizedBox(height: 8),
+
+                      // Contextual Descriptive Paragraph (Matching Reference Image)
+                      Text(
+                        completedCount > 0
+                            ? 'Across $completedCount completed ${completedCount == 1 ? 'deliverable' : 'deliverables'} this ${isMonth ? 'month' : 'week'} billed across $clientCount ${clientCount == 1 ? 'client' : 'clients'}.'
+                            : 'As you finish tasks, your gross earnings and client distributions will track here.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.35,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white.withValues(alpha: 0.88),
+                        ),
+                      ),
+
+                      // Pipeline In-Progress Velocity
+                      if (taskProvider.pipelineSplit.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: const Color(0xFFFCD34D)
+                                  .withValues(alpha: 0.40),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 6,
+                                height: 6,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFF59E0B),
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '✦ Pipeline: ${taskProvider.pipelineSplit.map((p) => '${_symbolFor(p.currency)}${formatter.format(p.total)}').join(', ')} in progress',
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFFCD34D),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
+                ),
+              ),
+
+              // ── Lower Section: Clean White / Contrast Footer Banner ──
+              InkWell(
+                onTap: () => _showEarningsBreakdown(context, taskProvider),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 20, vertical: 14),
+                  decoration: BoxDecoration(
+                    color: isDark ? const Color(0xFF141F18) : Colors.white,
+                    border: Border(
+                      top: BorderSide(
+                        color: isDark
+                            ? const Color(0xFF263B2F)
+                            : const Color(0xFFE2E8F0),
+                        width: 1,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '📋',
-                        style: TextStyle(fontSize: 12),
-                      ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Invoice',
+                        'See your full earnings breakdown',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13.5,
                           fontWeight: FontWeight.w700,
-                          color: Colors.white,
+                          color: isDark
+                              ? const Color(0xFF34D399)
+                              : const Color(0xFF0F5A3E),
                         ),
+                      ),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 20,
+                        color: isDark
+                            ? const Color(0xFF34D399)
+                            : const Color(0xFF0F5A3E),
                       ),
                     ],
                   ),
@@ -254,115 +434,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
-
-          // ── Eyebrow ────────────────────────────────────────────────
-          Text(
-            isMonth ? 'Earned this month' : 'Earned this week',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: isDark
-                  ? const Color(0xFF8EA397)
-                  : const Color(0xFFA3C7B3),
-            ),
-          ),
-          const SizedBox(height: 6),
-
-          // ── Genuinely Large Currency Display (Fixed ₱ glyph) ────────
-          if (split.isEmpty) ...[
-            GestureDetector(
-              onTap: () => _showEarningsBreakdown(context, taskProvider),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildCurrencyRow('PHP', 0.0, formatter, isDark),
-                  const SizedBox(height: 4),
-                  _buildEmptyEarningsSparkline(isDark, isMonth),
-                ],
-              ),
-            ),
-          ] else ...[
-            GestureDetector(
-              onTap: () => _showEarningsBreakdown(context, taskProvider),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ...split.map((s) => Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: _buildCurrencyRow(
-                            s.currency, s.total, formatter, isDark),
-                      )),
-                  const SizedBox(height: 2),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.touch_app_outlined,
-                        size: 13,
-                        color: isDark
-                            ? const Color(0xFF8EA397)
-                            : const Color(0xFFA3C7B3),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'Tap to inspect breakdown',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark
-                              ? const Color(0xFF8EA397)
-                              : const Color(0xFFA3C7B3),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-
-          // ── Pipeline Velocity (Money in Progress) ───────────────────
-          if (taskProvider.pipelineSplit.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? const Color(0xFF221A08)
-                    : const Color(0xFFFEF3C7),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isDark
-                      ? const Color(0xFF78350F)
-                      : const Color(0xFFFDE68A),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFD97706),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Pipeline: ${taskProvider.pipelineSplit.map((p) => '${_symbolFor(p.currency)}${formatter.format(p.total)}').join(', ')} in progress',
-                    style: TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w700,
-                      color: isDark
-                          ? const Color(0xFFFCD34D)
-                          : const Color(0xFF92400E),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }
@@ -1026,5 +1098,73 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+}
+
+class _HeroCardAbstractShapesPainter extends CustomPainter {
+  final bool isDark;
+
+  const _HeroCardAbstractShapesPainter({required this.isDark});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // 1. Top-right large soft glowing gradient orb
+    final glowPaint1 = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          (isDark ? const Color(0xFF34D399) : const Color(0xFF4ADE80))
+              .withValues(alpha: isDark ? 0.22 : 0.28),
+          Colors.transparent,
+        ],
+      ).createShader(Rect.fromCircle(
+        center: Offset(size.width * 0.90, size.height * 0.12),
+        radius: 120,
+      ));
+    canvas.drawCircle(
+        Offset(size.width * 0.90, size.height * 0.12), 120, glowPaint1);
+
+    // 2. Top-right crisp abstract concentric ring 1
+    final ringPaint1 = Paint()
+      ..color = Colors.white.withValues(alpha: isDark ? 0.12 : 0.16)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    canvas.drawCircle(
+        Offset(size.width * 0.88, size.height * 0.10), 95, ringPaint1);
+
+    // 3. Top-right crisp abstract concentric ring 2 (larger)
+    final ringPaint2 = Paint()
+      ..color = Colors.white.withValues(alpha: isDark ? 0.06 : 0.09)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+    canvas.drawCircle(
+        Offset(size.width * 0.88, size.height * 0.10), 140, ringPaint2);
+
+    // 4. Bottom-left ambient glowing orb
+    final glowPaint2 = Paint()
+      ..shader = RadialGradient(
+        colors: [
+          (isDark ? const Color(0xFF10B981) : const Color(0xFF34D399))
+              .withValues(alpha: isDark ? 0.16 : 0.20),
+          Colors.transparent,
+        ],
+      ).createShader(Rect.fromCircle(
+        center: Offset(size.width * 0.08, size.height * 0.88),
+        radius: 100,
+      ));
+    canvas.drawCircle(
+        Offset(size.width * 0.08, size.height * 0.88), 100, glowPaint2);
+
+    // 5. Bottom-left crisp abstract ring arc
+    final ringPaint3 = Paint()
+      ..color = Colors.white.withValues(alpha: isDark ? 0.09 : 0.12)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4;
+    canvas.drawCircle(
+        Offset(size.width * 0.08, size.height * 0.88), 80, ringPaint3);
+  }
+
+  @override
+  bool shouldRepaint(covariant _HeroCardAbstractShapesPainter oldDelegate) {
+    return oldDelegate.isDark != isDark;
   }
 }
